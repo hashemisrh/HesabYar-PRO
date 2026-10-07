@@ -1,0 +1,2 @@
+-keep class com.hashemisrh.hesabyar.data.** { *; }
+-keep class com.hashemisrh.hesabyar.sms.** { *; }
