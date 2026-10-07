@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="teal_deep">#0F5C5A</color>
     <color name="teal_dark">#102A2A</color>
     <color name="ivory">#F5F3EE</color>
-    <color name="gold">#C7A86B</color>
+    <color name="champagne">#C7A86B</color>
     <color name="emerald">#2E8B75</color>
     <color name="muted_red">#B85C5C</color>
 </resources>

@@ -4,27 +4,28 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import com.hashemisrh.hesabyar.data.AppDb
-import com.hashemisrh.hesabyar.data.Transaction
-import java.security.MessageDigest
+import android.util.Log
 
 class SmsReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
-        if(intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
-        val db=AppDb(context.applicationContext)
-        val messages=Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: return
-        val body=messages.joinToString("") { it.messageBody ?: "" }
-        if(body.isBlank()) return
-        val sender=messages.firstOrNull()?.originatingAddress
-        val received=messages.minOfOrNull{it.timestampMillis} ?: System.currentTimeMillis()
-        val fp=sha256((sender?:(""))+"|"+body+"|"+received)
-        if(db.rawExists(fp))return
-        val rawId=db.addRaw(sender,body,received,fp)
-        val parsed=SmsParser.parse(body,db.accounts())
-        if(parsed.matched && parsed.accountId!=null && parsed.amount!=null && parsed.dateText!=null){
-            db.addTransaction(Transaction(0,parsed.accountId,parsed.direction!!,parsed.nature,parsed.amount,parsed.dateText,parsed.smsBalance,null,null,parsed.title,parsed.channel,parsed.description,parsed.tracking,rawId,"POSTED",System.currentTimeMillis()))
-            db.setRawStatus(rawId,"POSTED")
-        } else db.setRawStatus(rawId,"REVIEW")
+        if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
+
+        val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
+        if (messages.isNullOrEmpty()) return
+
+        val rawBody = messages.joinToString(separator = "") { it.messageBody ?: "" }
+        val sender = messages.firstOrNull()?.originatingAddress.orEmpty()
+        val receivedAt = messages.firstOrNull()?.timestampMillis ?: System.currentTimeMillis()
+
+        // IMPORTANT:
+        // 1) Raw SMS is captured unchanged.
+        // 2) Sender/short-code is diagnostic only, never the bank/account identity.
+        // 3) Transaction date/time will later be extracted from the SMS body.
+        // 4) The parser will return REVIEW instead of guessing on ambiguity.
+        Log.d("HesabYarSms", "SMS captured: sender=$sender, receivedAt=$receivedAt, length=${rawBody.length}")
+
+        // Parser/DB pipeline will be connected here:
+        // Raw SMS -> normalize -> pattern -> account -> extract -> validate -> transaction/review.
     }
-    private fun sha256(s:String):String=MessageDigest.getInstance("SHA-256").digest(s.toByteArray()).joinToString(""){ "%02x".format(it) }
 }
