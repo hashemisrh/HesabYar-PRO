@@ -1,33 +1,27 @@
-# حساب‌یار (HesabYar) 1.0.0
+# حساب‌یار (HesabYar)
 
-اپلیکیشن شخصی مدیریت درآمد و هزینه بر پایه SMS بانکی؛ RTL، آفلاین و بدون سرور.
+Personal offline-first Persian finance manager driven by bank SMS.
 
-## Build ثابت
-- Android Studio Rabbit 1 (2026.2.1)
-- Android Gradle Plugin 9.4.0
-- Gradle 9.6.0
-- JDK 17
-- Kotlin 2.4.20
-- Compile/Target SDK 37
-- Compose UI 1.12.1 / Material3 1.4.0
-- Core KTX 1.19.1 / Activity 1.13.0
+## Initial build stack
+- Android Studio: Quail 4 / 2026.1.4 stable
+- Android Gradle Plugin: 9.4.0
+- Gradle: 9.6.0
+- JDK: 17
+- Kotlin: 2.4.20
+- Compile/Target SDK: 37
+- Room: 2.8.5
+- Compose: 1.12.1 / Material 3
 
-## معماری
-- SMS Receiver مستقل از Activity
-- متن خام SMS همیشه نگهداری می‌شود
-- تشخیص بانک بر اساس سرشماره انجام نمی‌شود
-- حساب ثبت‌شده، شناسه حساب و الگوی پیام مبنای تشخیص هستند
-- SMS مبهم یا ناقص به Review می‌رود و حدس زده نمی‌شود
-- تاریخ تراکنش از متن SMS استخراج می‌شود؛ timestamp دریافت فقط برای تشخیص تکراری/عیب‌یابی نگهداری می‌شود
-- تراکنش انتقال، برگشت و Adjustment از درآمد/هزینه عادی جدا هستند
-- دیتای اصلی محلی است
-- Backup نسخه‌دار و رمزگذاری‌شده با PIN است
-- PIN و ورود بیومتریک
+## Design
+Deep teal + ivory + champagne gold, RTL, with a premium dashboard.
 
-## بانک‌های اولیه
-گردشگری، بلو، پاسارگاد، ملی، تجارت، ملت، صادرات.
+## SMS safety rules
+- Never identify a bank by sender/short code.
+- Preserve raw SMS unchanged.
+- Prefer account identifier from SMS.
+- Extract transaction date/time from SMS itself.
+- Never guess when account, amount, date, or pattern is ambiguous.
+- Ambiguous messages go to review.
 
-الگوها عمداً قابل توسعه هستند و نمونه‌های جدید SMS باید قبل از اضافه شدن به parser بررسی شوند.
-
-## نکته مهم
-این پروژه برای استفاده شخصی و نصب مستقیم APK طراحی شده است. برای انتشار عمومی در Google Play، سیاست‌های فعلی دسترسی SMS و الزامات انتشار باید جداگانه بررسی و رعایت شوند.
+## Build
+Use Android Studio with JDK 17, or GitHub Actions. The workflow pins Gradle 9.6.0 and JDK 17.
