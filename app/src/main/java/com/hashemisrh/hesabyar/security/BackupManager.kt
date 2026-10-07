@@ -2,6 +2,7 @@ package com.hashemisrh.hesabyar.security
 
 import android.content.Context
 import com.hashemisrh.hesabyar.data.AppDb
+import com.hashemisrh.hesabyar.data.Transaction
 import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.ByteBuffer
