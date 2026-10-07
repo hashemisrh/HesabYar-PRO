@@ -61,7 +61,75 @@ class MainActivity : FragmentActivity() {
 
     @Composable fun LockScreen(canBio:Boolean,onPin:(String)->Unit,onBio:()->Unit){var pin by remember{mutableStateOf("")};Column(Modifier.fillMaxSize().background(Teal).padding(28.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text("حساب‌یار",fontSize=34.sp,fontWeight=FontWeight.Bold,color=Ivory);Text("برای ورود PIN را وارد کنید",color=Gold,modifier=Modifier.padding(12.dp));OutlinedTextField(pin,{if(it.length<=6)pin=it},singleLine=true,label={Text("PIN")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.NumberPassword));Button(onClick={onPin(pin)},modifier=Modifier.fillMaxWidth().padding(top=18.dp)){Text("ورود")};if(canBio){TextButton(onClick=onBio){Icon(Icons.Default.Fingerprint,null);Spacer(Modifier.width(8.dp));Text("ورود با اثر انگشت")}}}}
 
-    @Composable fun MainShell(refresh:Int,onRefresh:()->Unit){var tab by remember{mutableIntStateOf(0)};var showAdd by remember{mutableStateOf(false)};val tabs=listOf("خانه","تراکنش‌ها","حساب‌ها","گزارش","تنظیمات");Scaffold(bottomBar={NavigationBar(containerColor=TealDark){tabs.forEachIndexed{i,t->NavigationBarItem(selected=tab==i,onClick={tab=i},icon={Icon(when(i){0->Icons.Default.Home;1->Icons.Default.List;2->Icons.Default.AccountBalance;3->Icons.Default.BarChart;else->Icons.Default.Settings},null)},label={Text(t)}})}},floatingActionButton={if(tab==2)FloatingActionButton(onClick={showAdd=true},containerColor=Gold,contentColor=Teal){Icon(Icons.Default.Add,null)}}){pad->CompositionLocalProvider(LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl){Box(Modifier.padding(pad).fillMaxSize()){when(tab){0->HomeScreen(refresh);1->TransactionsScreen(refresh);2->AccountsScreen(refresh);3->ReportsScreen(refresh);4->SettingsScreen(onRefresh)}}}};if(showAdd)AddAccountDialog({showAdd=false;onRefresh()},{showAdd=false})}
+    @Composable
+    fun MainShell(refresh: Int, onRefresh: () -> Unit) {
+        var tab by remember { mutableIntStateOf(0) }
+        var showAdd by remember { mutableStateOf(false) }
+        val tabs = listOf("خانه", "تراکنش‌ها", "حساب‌ها", "گزارش", "تنظیمات")
+
+        Scaffold(
+            bottomBar = {
+                NavigationBar(containerColor = TealDark) {
+                    tabs.forEachIndexed { i, title ->
+                        NavigationBarItem(
+                            selected = tab == i,
+                            onClick = { tab = i },
+                            icon = {
+                                val icon = when (i) {
+                                    0 -> Icons.Default.Home
+                                    1 -> Icons.Default.List
+                                    2 -> Icons.Default.AccountBalance
+                                    3 -> Icons.Default.BarChart
+                                    else -> Icons.Default.Settings
+                                }
+                                Icon(icon, contentDescription = title)
+                            },
+                            label = { Text(title) }
+                        )
+                    }
+                }
+            },
+            floatingActionButton = {
+                if (tab == 2) {
+                    FloatingActionButton(
+                        onClick = { showAdd = true },
+                        containerColor = Gold,
+                        contentColor = Teal
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "افزودن حساب")
+                    }
+                }
+            }
+        ) { paddingValues ->
+            CompositionLocalProvider(
+                LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxSize()
+                ) {
+                    when (tab) {
+                        0 -> HomeScreen(refresh)
+                        1 -> TransactionsScreen(refresh)
+                        2 -> AccountsScreen(refresh)
+                        3 -> ReportsScreen(refresh)
+                        4 -> SettingsScreen(onRefresh)
+                    }
+                }
+            }
+        }
+
+        if (showAdd) {
+            AddAccountDialog(
+                close = { showAdd = false },
+                done = {
+                    showAdd = false
+                    onRefresh()
+                }
+            )
+        }
+    }
 
     @Composable fun HomeScreen(refresh:Int){val accounts=db.accounts();val balance=accounts.sumOf{db.currentBalance(it.id)};val c=db.counts();Column(Modifier.fillMaxSize().background(Ivory).padding(16.dp)){Text("سلام",fontSize=18.sp,color=Teal);Text("مدیریت هوشمند پول شما",fontSize=14.sp,color=Color.Gray);Spacer(Modifier.height(14.dp));Card(Modifier.fillMaxWidth(),shape=RoundedCornerShape(26.dp),colors=CardDefaults.cardColors(containerColor=Teal)){Column(Modifier.padding(22.dp)){Text("موجودی کل",color=Ivory);Text(money(balance),fontSize=30.sp,fontWeight=FontWeight.Bold,color=Ivory);Text("ریال",color=Gold);}};Spacer(Modifier.height(12.dp));Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)){SummaryCard("دریافتی",c.second,Emerald,Modifier.weight(1f));SummaryCard("پرداختی",c.third,MutedRed,Modifier.weight(1f))};Spacer(Modifier.height(18.dp));Text("تراکنش‌های اخیر",fontWeight=FontWeight.Bold,fontSize=18.sp,color=TealDark);Spacer(Modifier.height(6.dp));LazyColumn{items(db.recent()){TransactionRow(it)}}}}
     @Composable fun SummaryCard(title:String,value:Long,color:Color,modifier:Modifier){Card(modifier,shape=RoundedCornerShape(18.dp),colors=CardDefaults.cardColors(containerColor=color.copy(alpha=.12f))){Column(Modifier.padding(14.dp)){Text(title,color=color,fontWeight=FontWeight.Bold);Text(money(value),fontSize=17.sp,fontWeight=FontWeight.Bold,color=TealDark)}}}
