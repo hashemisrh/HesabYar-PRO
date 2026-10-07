@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalLayoutDirection
 import com.hashemisrh.hesabyar.data.*
 import com.hashemisrh.hesabyar.security.*
 import com.hashemisrh.hesabyar.ui.theme.HesabYarTheme
